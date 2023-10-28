@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Upcoming expenses</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif; /* Change the font family */
+            background-color: #f1f1f1;
+            padding: 20px;
+        }
+    
+        h1 {
+            text-align: center;
+            color: #007aff;
+        }
+    
+        .tab-buttons {
+            display: flex;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+    
+        .tab-button {
+            background-color: #ccc;
+            color: #333;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            flex: 1;
+            transition: background-color 0.3s;
+            font-family: 'Arial', sans-serif; /* Change the font family */
+        }
+    
+        .tab-button.active {
+            background-color: #007aff;
+            color: #fff;
+        }
+    
+        .tab-content {
+            display: none;
+        }
+    
+        .active {
+            display: block;
+        }
+    
+        input[type="date"],
+        input[type="number"],
+        input[type="text"],
+        input[type="month"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: 'Arial', sans-serif; /* Change the font family */
+        }
+    
+        button {
+            background-color: #007aff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'Arial', sans-serif; /* Change the font family */
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 5px;
+            font-family: 'Arial', sans-serif; /* Change the font family */
+        }
+    
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+    
+        th {
+            background-color: #007aff;
+            color: #fff;
+        }
+    
+        p {
+            text-align: right;
+            font-weight: bold;
+            color: #007aff;
+            font-family: 'Arial', sans-serif; /* Change the font family */
+        }
+    </style>
+    
+</head>
+
+<body>
+    <h1>Upcoming expenses tracker</h1>
+
+    <!-- Tab buttons -->
+    <div class="tab-buttons">
+        <button id="b-addTab" onclick="showTab('addTab')" class="tab-button">Add Expenses</button>
+        <button id="b-viewTab" onclick="showTab('viewTab')" class="tab-button">View Expenses</button>
+    </div>
+
+    <!-- Add Expenses Tab -->
+    <div id="addTab" class="tab-content active">
+        <h2>Add Expenses</h2>
+        <input type="date" id="expenseDate" placeholder="Date">
+        <input type="number" id="expenseAmount" placeholder="Amount">
+        <input type="text" id="expenseDescription" placeholder="Description">
+        <button onclick="addExpense()">Add Expense</button>
+    </div>
+
+    <!-- View Expenses Tab -->
+    <div id="viewTab" class="tab-content">
+        <h2>View Expenses</h2>
+        <label>Select Month:</label>
+        <input type="month" id="monthSelector">
+        <button onclick="viewExpenses()">View Expenses</button>
+        <table id="expenseTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="expenseTableBody"></tbody>
+        </table>
+        <p id="totalExpense" style="display: none;"></p>
+    </div>
+    <script>
+        const dbName = 'expenseDatabase';
+        const storeName = 'expenseObjectStore';
+        let db;
+
+        function showTab(tabId) {
+            debugger;
+            const tabs = document.querySelectorAll('.tab-content');
+            for (const tab of tabs) {
+                tab.style.display = 'none';
+            }
+
+            const buttons = document.querySelectorAll('.tab-button');
+            for (const button of buttons) {
+                button.classList.remove('active');
+            }
+
+            document.getElementById(tabId).style.display = 'block';
+
+            const activeButton = document.getElementById('b-' + tabId);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+        }
+
+        function deleteExpense(id) {
+            const transaction = db.transaction(storeName, 'readwrite');
+            const objectStore = transaction.objectStore(storeName);
+
+            objectStore.delete(id);
+
+            transaction.oncomplete = function () {
+                // Re-fetch and display expenses after deletion
+                viewExpenses();
+            };
+        }
+        function addExpense() {
+            const date = document.getElementById('expenseDate').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const description = document.getElementById('expenseDescription').value;
+
+            if (!date || isNaN(amount) || !description) {
+                alert('Please fill in all fields.');
+                return;
+            }
+            debugger;
+            const transaction = db.transaction(storeName, 'readwrite');
+            const objectStore = transaction.objectStore(storeName);
+
+            const newExpense = {
+                date: date,
+                amount: amount,
+                description: description
+            };
+
+            objectStore.add(newExpense);
+
+            transaction.oncomplete = function () {
+                clearAddExpenseForm();
+            };
+        }
+
+        function clearAddExpenseForm() {
+            document.getElementById('expenseDate').value = '';
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseDescription').value = '';
+        }
+
+        function viewExpenses() {
+            const monthSelector = document.getElementById('monthSelector');
+            const selectedMonth = monthSelector.value;
+
+            if (!selectedMonth) {
+                alert('Please select a month.');
+                return;
+            }
+
+            const objectStore = db.transaction(storeName).objectStore(storeName);
+            const expenseTable = document.getElementById('expenseTable');
+            const expenseTableBody = document.getElementById('expenseTableBody');
+            const totalExpense = document.getElementById('totalExpense');
+
+            expenseTableBody.innerHTML = '';
+            let total = 0; // Initialize the total to zero
+
+            objectStore.openCursor().onsuccess = function (event) {
+                const cursor = event.target.result;
+                debugger;
+                if (cursor) {
+                    const expenseDate = cursor.value.date;
+                    const expenseId = cursor.value.id;
+                    if (expenseDate.startsWith(selectedMonth)) {
+                        const row = document.createElement('tr');
+                        const dateCell = document.createElement('td');
+                        dateCell.textContent = cursor.value.date;
+                        const amountCell = document.createElement('td');
+                        amountCell.textContent = cursor.value.amount;
+                        const descriptionCell = document.createElement('td');
+                        descriptionCell.textContent = cursor.value.description;
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.onclick = function () {
+                            deleteExpense(expenseId);
+                        };
+                        deleteButton.classList.add('delete-button');
+
+                        row.appendChild(dateCell);
+                        row.appendChild(amountCell);
+                        row.appendChild(descriptionCell);
+                        row.appendChild(deleteButton);
+                        expenseTableBody.appendChild(row);
+
+                        debugger;
+                        // Add the expense amount to the total
+                        total += parseFloat(cursor.value.amount);
+                    }
+                    cursor.continue();
+                }
+                expenseTable.style.display = 'table';
+                // Display the total expense
+                totalExpense.textContent = `Total Expense: ${total.toFixed(2)}`;
+                totalExpense.style.display = 'block';
+            };
+        }
+
+        // IndexedDB initialization
+        const openDBRequest = indexedDB.open(dbName, 1);
+
+        openDBRequest.onupgradeneeded = function (event) {
+            db = event.target.result;
+            db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
+        };
+
+        openDBRequest.onsuccess = function (event) {
+            db = event.target.result;
+            // You can also load any initial data here if needed
+        };
+    </script>
+</body>
+
+</html>

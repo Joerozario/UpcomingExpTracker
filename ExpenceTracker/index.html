@@ -1,278 +1,2073 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 
 <head>
-    <title>Upcoming expenses</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Tracker</title>
     <style>
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif; /* Change the font family */
-            background-color: #f1f1f1;
-            padding: 20px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-    
+
+```
+    :root {
+        --bg-primary: #0D1B2A;
+        --bg-secondary: #1A2332;
+        --bg-tertiary: #2C3E50;
+        --accent-teal: #00D4FF;
+        --accent-green: #2ECC71;
+        --accent-red: #FF6B6B;
+        --text-primary: #F1F1F1;
+        --text-secondary: #B0B0B0;
+        --border-color: #3A4F63;
+        --input-bg: #1A2332;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+
+    header {
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+        padding: 20px;
+        text-align: center;
+        border-bottom: 2px solid var(--accent-teal);
+        box-shadow: 0 4px 12px rgba(0, 212, 255, 0.1);
+    }
+
+    h1 {
+        color: var(--accent-teal);
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .tab-buttons {
+        display: flex;
+        justify-content: flex-start;
+        overflow-x: auto;
+        background-color: var(--bg-secondary);
+        padding: 10px;
+        gap: 8px;
+        scroll-behavior: smooth;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-button {
+        background-color: var(--bg-tertiary);
+        color: var(--text-secondary);
+        padding: 12px 16px;
+        border: none;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .tab-button:hover {
+        background-color: var(--bg-primary);
+        color: var(--accent-teal);
+    }
+
+    .tab-button.active {
+        background-color: var(--accent-teal);
+        color: var(--bg-primary);
+        box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    }
+
+    .tab-content {
+        display: none;
+        padding: 20px;
+        animation: slideIn 0.3s ease;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    h2 {
+        color: var(--accent-teal);
+        font-size: 20px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--accent-teal);
+        padding-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    label {
+        display: block;
+        color: var(--text-primary);
+        font-weight: 600;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="month"],
+    select {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--input-bg);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: 'Segoe UI', sans-serif;
+        transition: all 0.3s ease;
+    }
+
+    input:focus,
+    select:focus {
+        outline: none;
+        border-color: var(--accent-teal);
+        box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+    }
+
+    button {
+        background-color: var(--accent-teal);
+        color: var(--bg-primary);
+        border: none;
+        padding: 12px 24px;
+        margin-top: 10px;
+        cursor: pointer;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    button:hover {
+        background-color: #00A8CC;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+    }
+
+    .btn-danger {
+        background-color: var(--accent-red);
+        color: white;
+        width: auto;
+        padding: 8px 12px;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    .btn-danger:hover {
+        background-color: #FF5252;
+    }
+
+    .btn-secondary {
+        background-color: var(--bg-tertiary);
+        color: var(--text-primary);
+        width: auto;
+        padding: 8px 12px;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    .btn-secondary:hover {
+        background-color: #3A4F63;
+    }
+
+    .btn-success {
+        background-color: var(--accent-green);
+        color: var(--bg-primary);
+    }
+
+    .btn-success:hover {
+        background-color: #27AE60;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    th,
+    td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 13px;
+    }
+
+    th {
+        background-color: var(--bg-tertiary);
+        color: var(--accent-teal);
+        font-weight: 700;
+    }
+
+    tr:hover {
+        background-color: var(--bg-tertiary);
+    }
+
+    .amount-positive {
+        color: var(--accent-green);
+        font-weight: 600;
+    }
+
+    .amount-negative {
+        color: var(--accent-red);
+        font-weight: 600;
+    }
+
+    .amount-neutral {
+        color: var(--accent-teal);
+        font-weight: 600;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-card {
+        background-color: var(--bg-secondary);
+        padding: 16px;
+        border-radius: 8px;
+        border-left: 4px solid var(--accent-teal);
+    }
+
+    .dashboard-card.positive {
+        border-left-color: var(--accent-green);
+    }
+
+    .dashboard-card.negative {
+        border-left-color: var(--accent-red);
+    }
+
+    .dashboard-label {
+        color: var(--text-secondary);
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .dashboard-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    .dashboard-card.positive .dashboard-value {
+        color: var(--accent-green);
+    }
+
+    .dashboard-card.negative .dashboard-value {
+        color: var(--accent-red);
+    }
+
+    .dashboard-card.neutral .dashboard-value {
+        color: var(--accent-teal);
+    }
+
+    .net-worth-card {
+        grid-column: 1 / -1;
+        background: linear-gradient(135deg, #0D2A3D 0%, #1A3A4A 100%);
+        border-left-color: var(--accent-teal);
+    }
+
+    .net-worth-card .dashboard-value {
+        font-size: 32px;
+        color: var(--accent-teal);
+    }
+
+    .reminders-section {
+        background-color: var(--bg-secondary);
+        padding: 16px;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    .reminder-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background-color: var(--bg-tertiary);
+        border-radius: 6px;
+        margin-bottom: 10px;
+        border-left: 4px solid var(--accent-teal);
+    }
+
+    .reminder-info {
+        flex: 1;
+    }
+
+    .reminder-date {
+        color: var(--accent-teal);
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .reminder-name {
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .reminder-amount {
+        color: var(--accent-red);
+        font-weight: 700;
+        font-size: 14px;
+        margin-top: 4px;
+    }
+
+    .reminder-checkbox {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        accent-color: var(--accent-teal);
+    }
+
+    .month-selector {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 0;
+        padding: 12px;
+        background-color: var(--bg-secondary);
+        border-radius: 8px;
+    }
+
+    .month-selector button {
+        width: auto;
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .month-display {
+        color: var(--accent-teal);
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .account-card {
+        background-color: var(--bg-secondary);
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        border: 1px solid var(--border-color);
+    }
+
+    .account-name {
+        color: var(--accent-teal);
+        font-weight: 700;
+        font-size: 16px;
+    }
+
+    .account-balance {
+        color: var(--accent-green);
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 8px;
+    }
+
+    .account-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .account-actions button {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    .checkbox-group {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .checkbox-item input[type="radio"],
+    .checkbox-item input[type="checkbox"] {
+        cursor: pointer;
+        width: 16px;
+        height: 16px;
+        accent-color: var(--accent-teal);
+    }
+
+    .checkbox-item label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .alert {
+        padding: 12px;
+        background-color: var(--bg-secondary);
+        border-left: 4px solid var(--accent-teal);
+        border-radius: 6px;
+        margin-bottom: 16px;
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
+
+    .alert.danger {
+        border-left-color: var(--accent-red);
+        color: var(--accent-red);
+    }
+
+    .alert.success {
+        border-left-color: var(--accent-green);
+        color: var(--accent-green);
+    }
+
+    .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .full-width {
+        grid-column: 1 / -1;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .action-buttons button {
+        flex: 1;
+        min-width: 80px;
+        padding: 8px 12px;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    @media (max-width: 600px) {
         h1 {
-            text-align: center;
-            color: #007aff;
+            font-size: 18px;
         }
-    
+
+        h2 {
+            font-size: 16px;
+        }
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .two-column {
+            grid-template-columns: 1fr;
+        }
+
         .tab-buttons {
-            display: flex;
-            justify-content: space-between;
-            overflow: hidden;
+            padding: 8px;
         }
-    
+
         .tab-button {
-            background-color: #ccc;
-            color: #333;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            flex: 1;
-            transition: background-color 0.3s;
-            font-family: 'Arial', sans-serif; /* Change the font family */
+            padding: 10px 12px;
+            font-size: 11px;
         }
-    
-        .tab-button.active {
-            background-color: #007aff;
-            color: #fff;
+
+        .dashboard-value {
+            font-size: 20px;
         }
-    
-        .tab-content {
-            display: none;
+
+        .net-worth-card .dashboard-value {
+            font-size: 24px;
         }
-    
-        .active {
-            display: block;
-        }
-    
-        input[type="date"],
-        input[type="number"],
-        input[type="text"],
-        input[type="month"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-family: 'Arial', sans-serif; /* Change the font family */
-        }
-    
-        button {
-            background-color: #007aff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            margin: 10px 0;
-            cursor: pointer;
-            border-radius: 5px;
-            font-family: 'Arial', sans-serif; /* Change the font family */
-        }
-    
+
         table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            border-radius: 5px;
-            font-family: 'Arial', sans-serif; /* Change the font family */
+            font-size: 12px;
         }
-    
-        th, td {
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
+
+        th,
+        td {
+            padding: 8px;
         }
-    
-        th {
-            background-color: #007aff;
-            color: #fff;
+
+        .action-buttons {
+            gap: 4px;
         }
-    
-        p {
-            text-align: right;
-            font-weight: bold;
-            color: #007aff;
-            font-family: 'Arial', sans-serif; /* Change the font family */
+
+        .action-buttons button {
+            min-width: 60px;
         }
-    </style>
-    
+    }
+
+    .edit-form {
+        background-color: var(--bg-secondary);
+        padding: 16px;
+        border-radius: 8px;
+        margin-top: 16px;
+        border: 1px solid var(--border-color);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    input[type="file"] {
+        padding: 8px;
+        background-color: var(--input-bg);
+    }
+</style>
+```
+
 </head>
 
 <body>
-    <h1>Upcoming expenses tracker</h1>
+    <header>
+        <h1>💰 Personal Finance Tracker</h1>
+    </header>
 
-    <!-- Tab buttons -->
-    <div class="tab-buttons">
-        <button id="b-addTab" onclick="showTab('addTab')" class="tab-button">Add Expenses</button>
-        <button id="b-viewTab" onclick="showTab('viewTab')" class="tab-button">View Expenses</button>
+```
+<div class="tab-buttons">
+    <button class="tab-button active" onclick="showTab('dashboard')">Dashboard</button>
+    <button class="tab-button" onclick="showTab('income')">Income</button>
+    <button class="tab-button" onclick="showTab('accounts')">Accounts</button>
+    <button class="tab-button" onclick="showTab('transfers')">Transfers</button>
+    <button class="tab-button" onclick="showTab('reminders')">Reminders</button>
+    <button class="tab-button" onclick="showTab('loans')">Loans</button>
+    <button class="tab-button" onclick="showTab('assets')">Assets</button>
+    <button class="tab-button" onclick="showTab('history')">History</button>
+    <button class="tab-button" onclick="showTab('settings')">Settings</button>
+</div>
+
+<!-- DASHBOARD TAB -->
+<div id="dashboard" class="tab-content active">
+    <h2>Dashboard</h2>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card positive">
+            <div class="dashboard-label">Total Assets</div>
+            <div class="dashboard-value" id="totalAssets">₹0</div>
+        </div>
+        <div class="dashboard-card negative">
+            <div class="dashboard-label">Total Liabilities</div>
+            <div class="dashboard-value" id="totalLiabilities">₹0</div>
+        </div>
+        <div class="dashboard-card net-worth-card neutral">
+            <div class="dashboard-label">Net Worth</div>
+            <div class="dashboard-value" id="netWorth">₹0</div>
+        </div>
     </div>
 
-    <!-- Add Expenses Tab -->
-    <div id="addTab" class="tab-content active">
-        <h2>Add Expenses</h2>
-        <input type="date" id="expenseDate" placeholder="Date">
-        <input type="number" id="expenseAmount" placeholder="Amount">
-        <input type="text" id="expenseDescription" placeholder="Description">
-        <button onclick="addExpense()">Add Expense</button>
+    <div class="reminders-section">
+        <h3 style="color: var(--accent-teal); margin-bottom: 16px;">📅 Upcoming Reminders</h3>
+        <div class="month-selector">
+            <button onclick="previousMonth()">&lt; Previous</button>
+            <span class="month-display" id="reminderMonthDisplay">April 2027</span>
+            <button onclick="nextMonth()">Next &gt;</button>
+        </div>
+        <div id="upcomingReminders"></div>
+    </div>
+</div>
+
+<!-- INCOME TAB -->
+<div id="income" class="tab-content">
+    <h2>Income</h2>
+
+    <div class="form-group">
+        <label>Salary Amount (₹)</label>
+        <input type="number" id="salaryAmount" placeholder="50000">
     </div>
 
-    <!-- View Expenses Tab -->
-    <div id="viewTab" class="tab-content">
-        <h2>View Expenses</h2>
-        <label>Select Month:</label>
-        <input type="month" id="monthSelector">
-        <button onclick="viewExpenses()">View Expenses</button>
-        <table id="expenseTable" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="expenseTableBody"></tbody>
-        </table>
-        <p id="totalExpense" style="display: none;"></p>
+    <div class="form-group">
+        <label>Auto-Deposit Date (Day of Month)</label>
+        <input type="number" id="salaryDate" min="1" max="31" placeholder="1">
     </div>
-    <script>
-        const dbName = 'expenseDatabase';
-        const storeName = 'expenseObjectStore';
-        let db;
 
-        function showTab(tabId) {
-            debugger;
-            const tabs = document.querySelectorAll('.tab-content');
-            for (const tab of tabs) {
-                tab.style.display = 'none';
-            }
+    <div class="form-group">
+        <label>To Account</label>
+        <select id="salaryAccount"></select>
+    </div>
 
-            const buttons = document.querySelectorAll('.tab-button');
-            for (const button of buttons) {
-                button.classList.remove('active');
-            }
+    <button onclick="saveSalary()">Save Salary Settings</button>
 
-            document.getElementById(tabId).style.display = 'block';
+    <div class="form-group" style="margin-top: 30px;">
+        <label>EPF Amount (₹)</label>
+        <input type="number" id="epfAmount" placeholder="6000">
+    </div>
 
-            const activeButton = document.getElementById('b-' + tabId);
-            if (activeButton) {
-                activeButton.classList.add('active');
-            }
-        }
+    <div class="form-group">
+        <label>Auto-Deposit Date (Day of Month)</label>
+        <input type="number" id="epfDate" min="1" max="31" placeholder="1">
+    </div>
 
-        function deleteExpense(id) {
-            const transaction = db.transaction(storeName, 'readwrite');
-            const objectStore = transaction.objectStore(storeName);
+    <button onclick="saveEPF()">Save EPF Settings</button>
 
-            objectStore.delete(id);
+    <div id="incomeSettings"></div>
+</div>
 
-            transaction.oncomplete = function () {
-                // Re-fetch and display expenses after deletion
-                viewExpenses();
-            };
-        }
-        function addExpense() {
-            const date = document.getElementById('expenseDate').value;
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            const description = document.getElementById('expenseDescription').value;
+<!-- BANK ACCOUNTS TAB -->
+<div id="accounts" class="tab-content">
+    <h2>Bank Accounts</h2>
 
-            if (!date || isNaN(amount) || !description) {
-                alert('Please fill in all fields.');
-                return;
-            }
-            debugger;
-            const transaction = db.transaction(storeName, 'readwrite');
-            const objectStore = transaction.objectStore(storeName);
+    <div class="form-group">
+        <label>Account Name</label>
+        <input type="text" id="accountName" placeholder="Account A">
+    </div>
 
-            const newExpense = {
-                date: date,
-                amount: amount,
-                description: description
-            };
+    <div class="form-group">
+        <label>Initial Balance (₹)</label>
+        <input type="number" id="accountBalance" placeholder="0">
+    </div>
 
-            objectStore.add(newExpense);
+    <button onclick="addAccount()">Add Account</button>
 
-            transaction.oncomplete = function () {
-                clearAddExpenseForm();
-            };
-        }
+    <div id="accountsList" style="margin-top: 20px;"></div>
+</div>
 
-        function clearAddExpenseForm() {
-            document.getElementById('expenseDate').value = '';
-            document.getElementById('expenseAmount').value = '';
-            document.getElementById('expenseDescription').value = '';
-        }
+<!-- TRANSFERS TAB -->
+<div id="transfers" class="tab-content">
+    <h2>Transfer Between Accounts</h2>
 
-        function viewExpenses() {
-            const monthSelector = document.getElementById('monthSelector');
-            const selectedMonth = monthSelector.value;
+    <div class="form-group">
+        <label>From Account</label>
+        <select id="transferFrom"></select>
+    </div>
 
-            if (!selectedMonth) {
-                alert('Please select a month.');
-                return;
-            }
+    <div class="form-group">
+        <label>To Account</label>
+        <select id="transferTo"></select>
+    </div>
 
-            const objectStore = db.transaction(storeName).objectStore(storeName);
-            const expenseTable = document.getElementById('expenseTable');
-            const expenseTableBody = document.getElementById('expenseTableBody');
-            const totalExpense = document.getElementById('totalExpense');
+    <div class="form-group">
+        <label>Amount (₹)</label>
+        <input type="number" id="transferAmount" placeholder="1000">
+    </div>
 
-            expenseTableBody.innerHTML = '';
-            let total = 0; // Initialize the total to zero
+    <div class="form-group">
+        <label>Date</label>
+        <input type="date" id="transferDate">
+    </div>
 
-            objectStore.openCursor().onsuccess = function (event) {
-                const cursor = event.target.result;
-                debugger;
-                if (cursor) {
-                    const expenseDate = cursor.value.date;
-                    const expenseId = cursor.value.id;
-                    if (expenseDate.startsWith(selectedMonth)) {
-                        const row = document.createElement('tr');
-                        const dateCell = document.createElement('td');
-                        dateCell.textContent = cursor.value.date;
-                        const amountCell = document.createElement('td');
-                        amountCell.textContent = cursor.value.amount;
-                        const descriptionCell = document.createElement('td');
-                        descriptionCell.textContent = cursor.value.description;
-                        const deleteButton = document.createElement('button');
-                        deleteButton.textContent = 'Delete';
-                        deleteButton.onclick = function () {
-                            deleteExpense(expenseId);
-                        };
-                        deleteButton.classList.add('delete-button');
+    <button onclick="addTransfer()">Add Transfer</button>
 
-                        row.appendChild(dateCell);
-                        row.appendChild(amountCell);
-                        row.appendChild(descriptionCell);
-                        row.appendChild(deleteButton);
-                        expenseTableBody.appendChild(row);
+    <div id="transfersList" style="margin-top: 20px;"></div>
+</div>
 
-                        debugger;
-                        // Add the expense amount to the total
-                        total += parseFloat(cursor.value.amount);
-                    }
-                    cursor.continue();
-                }
-                expenseTable.style.display = 'table';
-                // Display the total expense
-                totalExpense.textContent = `Total Expense: ${total.toFixed(2)}`;
-                totalExpense.style.display = 'block';
-            };
-        }
+<!-- REMINDERS TAB -->
+<div id="reminders" class="tab-content">
+    <h2>Payment Reminders</h2>
 
-        // IndexedDB initialization
+    <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="reminderName" placeholder="Netflix, Insurance, etc.">
+    </div>
+
+    <div class="form-group">
+        <label>Amount (₹)</label>
+        <input type="number" id="reminderAmount" placeholder="1000">
+    </div>
+
+    <div class="form-group">
+        <label>Date of Month</label>
+        <input type="number" id="reminderDay" min="1" max="31" placeholder="15">
+    </div>
+
+    <div class="form-group">
+        <label>Frequency</label>
+        <select id="reminderFrequency">
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+            <option value="once">Once</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>From Account</label>
+        <select id="reminderAccount"></select>
+    </div>
+
+    <button onclick="addReminder()">Add Reminder</button>
+
+    <div id="remindersList" style="margin-top: 20px;"></div>
+</div>
+
+<!-- LOANS TAB -->
+<div id="loans" class="tab-content">
+    <h2>Manage Loans</h2>
+
+    <div class="form-group">
+        <label>Loan Name</label>
+        <input type="text" id="loanName" placeholder="Home Loan, Gold Loan, etc.">
+    </div>
+
+    <div class="form-group">
+        <label>Total Loan Amount (₹)</label>
+        <input type="number" id="loanTotal" placeholder="2000000">
+    </div>
+
+    <div class="form-group">
+        <label>EMI Amount (₹) - Leave 0 for no fixed EMI</label>
+        <input type="number" id="loanEMI" placeholder="0">
+    </div>
+
+    <div class="form-group">
+        <label>EMI Date (Day of Month)</label>
+        <input type="number" id="loanEMIDate" min="1" max="31" placeholder="5">
+    </div>
+
+    <div class="form-group">
+        <label>From Account</label>
+        <select id="loanAccount"></select>
+    </div>
+
+    <button onclick="addLoan()">Add Loan</button>
+
+    <div id="loansList" style="margin-top: 20px;"></div>
+</div>
+
+<!-- ASSETS TAB -->
+<div id="assets" class="tab-content">
+    <h2>Assets</h2>
+
+    <div class="form-group">
+        <label>Asset Name</label>
+        <input type="text" id="assetName" placeholder="Property, Gold, Crypto, etc.">
+    </div>
+
+    <div class="form-group">
+        <label>Current Value (₹)</label>
+        <input type="number" id="assetValue" placeholder="5000000">
+    </div>
+
+    <button onclick="addAsset()">Add Asset</button>
+
+    <div id="assetsList" style="margin-top: 20px;"></div>
+</div>
+
+<!-- TRANSACTION HISTORY TAB -->
+<div id="history" class="tab-content">
+    <h2>Transaction History</h2>
+
+    <div class="form-group">
+        <label>Filter by Month</label>
+        <input type="month" id="historyMonth">
+    </div>
+
+    <button onclick="filterHistory()" style="margin-bottom: 20px;">Filter</button>
+
+    <div id="historyTable"></div>
+</div>
+
+<!-- SETTINGS TAB -->
+<div id="settings" class="tab-content">
+    <h2>Settings</h2>
+
+    <button class="btn-success" onclick="exportData()" style="margin-bottom: 10px;">Export Data as JSON</button>
+
+    <div style="margin: 20px 0; padding: 16px; background-color: var(--bg-secondary); border-radius: 8px;">
+        <label style="margin-bottom: 10px;">Import Data from JSON</label>
+        <input type="file" id="jsonFileInput" accept=".json">
+        <button onclick="importData()" style="margin-top: 10px;">Import Data</button>
+    </div>
+
+    <button class="btn-danger" onclick="clearAllData()" style="margin-top: 20px;">Clear All Data</button>
+</div>
+
+<script>
+    // DATABASE SETUP
+    const dbName = 'personalFinanceDB';
+    const storeNames = {
+        accounts: 'accounts',
+        transfers: 'transfers',
+        reminders: 'reminders',
+        loans: 'loans',
+        loanPayments: 'loanPayments',
+        assets: 'assets',
+        transactions: 'transactions',
+        settings: 'settings'
+    };
+
+    let db;
+    let currentMonthOffset = 0;
+
+    function initDatabase() {
         const openDBRequest = indexedDB.open(dbName, 1);
 
-        openDBRequest.onupgradeneeded = function (event) {
+        openDBRequest.onerror = () => alert('Error opening database');
+
+        openDBRequest.onupgradeneeded = (event) => {
             db = event.target.result;
-            db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
+            
+            if (!db.objectStoreNames.contains(storeNames.accounts)) {
+                db.createObjectStore(storeNames.accounts, { keyPath: 'id', autoIncrement: true });
+            }
+            if (!db.objectStoreNames.contains(storeNames.transfers)) {
+                db.createObjectStore(storeNames.transfers, { keyPath: 'id', autoIncrement: true });
+            }
+            if (!db.objectStoreNames.contains(storeNames.reminders)) {
+                db.createObjectStore(storeNames.reminders, { keyPath: 'id', autoIncrement: true });
+            }
+            if (!db.objectStoreNames.contains(storeNames.loans)) {
+                db.createObjectStore(storeNames.loans, { keyPath: 'id', autoIncrement: true });
+            }
+            if (!db.objectStoreNames.contains(storeNames.loanPayments)) {
+                db.createObjectStore(storeNames.loanPayments, { keyPath: 'id', autoIncrement: true });
+            }
+            if (!db.objectStoreNames.contains(storeNames.assets)) {
+                db.createObjectStore(storeNames.assets, { keyPath: 'id', autoIncrement: true });
+            }
+            if (!db.objectStoreNames.contains(storeNames.transactions)) {
+                db.createObjectStore(storeNames.transactions, { keyPath: 'id', autoIncrement: true });
+            }
+            if (!db.objectStoreNames.contains(storeNames.settings)) {
+                db.createObjectStore(storeNames.settings, { keyPath: 'key' });
+            }
         };
 
-        openDBRequest.onsuccess = function (event) {
+        openDBRequest.onsuccess = (event) => {
             db = event.target.result;
-            // You can also load any initial data here if needed
+            initializeApp();
         };
-    </script>
+    }
+
+    function initializeApp() {
+        processAutoIncrements();
+        loadAccountsList();
+        loadIncomeSettings();
+        loadTransfersList();
+        loadRemindersList();
+        loadLoansList();
+        loadAssetsList();
+        updateDashboard();
+        updateAllSelects();
+        setTodayDate();
+    }
+
+    function setTodayDate() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('transferDate').value = today;
+    }
+
+    function showTab(tabId) {
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+
+        const buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        if (tabId === 'dashboard') {
+            updateDashboard();
+        } else if (tabId === 'history') {
+            const today = new Date();
+            const monthStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('historyMonth').value = monthStr;
+            filterHistory();
+        }
+    }
+
+    // TAB NAVIGATION
+    function showTab(tabId) {
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+
+        const buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        
+        const clickedBtn = Array.from(buttons).find(btn => {
+            const tabName = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+            return tabName === tabId;
+        });
+        if (clickedBtn) clickedBtn.classList.add('active');
+
+        if (tabId === 'dashboard') {
+            updateDashboard();
+        } else if (tabId === 'history') {
+            const today = new Date();
+            const monthStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('historyMonth').value = monthStr;
+            filterHistory();
+        }
+    }
+
+    // ACCOUNTS MANAGEMENT
+    function addAccount() {
+        const name = document.getElementById('accountName').value;
+        const balance = parseFloat(document.getElementById('accountBalance').value) || 0;
+
+        if (!name) {
+            alert('Please enter account name');
+            return;
+        }
+
+        const transaction = db.transaction(storeNames.accounts, 'readwrite');
+        const store = transaction.objectStore(storeNames.accounts);
+
+        store.add({
+            name: name,
+            balance: balance,
+            createdAt: new Date()
+        });
+
+        transaction.oncomplete = () => {
+            document.getElementById('accountName').value = '';
+            document.getElementById('accountBalance').value = '';
+            loadAccountsList();
+            updateAllSelects();
+            addTransaction('Account Created', 0, name, 'System');
+        };
+    }
+
+    function loadAccountsList() {
+        const transaction = db.transaction(storeNames.accounts, 'readonly');
+        const store = transaction.objectStore(storeNames.accounts);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const accounts = request.result;
+            const html = accounts.map(acc => `
+                <div class="account-card">
+                    <div class="account-name">${acc.name}</div>
+                    <div class="account-balance">₹${acc.balance.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+                    <div class="account-actions">
+                        <button class="btn-secondary" onclick="editAccount(${acc.id}, '${acc.name}', ${acc.balance})">Edit</button>
+                        <button class="btn-danger" onclick="deleteAccount(${acc.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('accountsList').innerHTML = html || '<div class="empty-state">No accounts yet</div>';
+        };
+    }
+
+    function editAccount(id, currentName, currentBalance) {
+        const newName = prompt('Edit account name:', currentName);
+        if (newName === null) return;
+
+        const transaction = db.transaction(storeNames.accounts, 'readwrite');
+        const store = transaction.objectStore(storeNames.accounts);
+        const getReq = store.get(id);
+
+        getReq.onsuccess = () => {
+            const account = getReq.result;
+            account.name = newName;
+            store.put(account);
+
+            transaction.oncomplete = () => {
+                loadAccountsList();
+                updateAllSelects();
+            };
+        };
+    }
+
+    function deleteAccount(id) {
+        if (!confirm('Delete this account?')) return;
+
+        const transaction = db.transaction(storeNames.accounts, 'readwrite');
+        const store = transaction.objectStore(storeNames.accounts);
+        store.delete(id);
+
+        transaction.oncomplete = () => {
+            loadAccountsList();
+            updateAllSelects();
+        };
+    }
+
+    function updateAllSelects() {
+        const transaction = db.transaction(storeNames.accounts, 'readonly');
+        const store = transaction.objectStore(storeNames.accounts);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const accounts = request.result;
+            const selects = ['salaryAccount', 'transferFrom', 'transferTo', 'reminderAccount', 'loanAccount'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    const currentValue = select.value;
+                    select.innerHTML = accounts.map(acc => 
+                        `<option value="${acc.id}">${acc.name}</option>`
+                    ).join('');
+                    if (currentValue) select.value = currentValue;
+                }
+            });
+        };
+    }
+
+    // INCOME MANAGEMENT
+    function saveSalary() {
+        const amount = parseFloat(document.getElementById('salaryAmount').value);
+        const date = parseInt(document.getElementById('salaryDate').value);
+        const accountId = parseInt(document.getElementById('salaryAccount').value);
+
+        if (!amount || !date || !accountId) {
+            alert('Please fill all fields');
+            return;
+        }
+
+        const transaction = db.transaction(storeNames.settings, 'readwrite');
+        const store = transaction.objectStore(storeNames.settings);
+        store.put({ key: 'salary', amount, date, accountId, lastProcessed: null });
+
+        transaction.oncomplete = () => {
+            alert('Salary settings saved');
+            loadIncomeSettings();
+        };
+    }
+
+    function saveEPF() {
+        const amount = parseFloat(document.getElementById('epfAmount').value);
+        const date = parseInt(document.getElementById('epfDate').value);
+
+        if (!amount || !date) {
+            alert('Please fill all fields');
+            return;
+        }
+
+        const transaction = db.transaction(storeNames.settings, 'readwrite');
+        const store = transaction.objectStore(storeNames.settings);
+        store.put({ key: 'epf', amount, date, lastProcessed: null });
+
+        transaction.oncomplete = () => {
+            alert('EPF settings saved');
+            loadIncomeSettings();
+        };
+    }
+
+    function loadIncomeSettings() {
+        const transaction = db.transaction(storeNames.settings, 'readonly');
+        const store = transaction.objectStore(storeNames.settings);
+
+        const salaryReq = store.get('salary');
+        const epfReq = store.get('epf');
+
+        salaryReq.onsuccess = () => {
+            const salary = salaryReq.result;
+            if (salary) {
+                document.getElementById('salaryAmount').value = salary.amount;
+                document.getElementById('salaryDate').value = salary.date;
+                document.getElementById('salaryAccount').value = salary.accountId;
+            }
+        };
+
+        epfReq.onsuccess = () => {
+            const epf = epfReq.result;
+            if (epf) {
+                document.getElementById('epfAmount').value = epf.amount;
+                document.getElementById('epfDate').value = epf.date;
+            }
+        };
+    }
+
+    // TRANSFERS MANAGEMENT
+    function addTransfer() {
+        const fromId = parseInt(document.getElementById('transferFrom').value);
+        const toId = parseInt(document.getElementById('transferTo').value);
+        const amount = parseFloat(document.getElementById('transferAmount').value);
+        const date = document.getElementById('transferDate').value;
+
+        if (!fromId || !toId || !amount || !date || fromId === toId) {
+            alert('Please fill all fields correctly (accounts must be different)');
+            return;
+        }
+
+        const transaction = db.transaction([storeNames.accounts, storeNames.transfers, storeNames.transactions], 'readwrite');
+        const accountsStore = transaction.objectStore(storeNames.accounts);
+        const transfersStore = transaction.objectStore(storeNames.transfers);
+        const transactionsStore = transaction.objectStore(storeNames.transactions);
+
+        const fromReq = accountsStore.get(fromId);
+        fromReq.onsuccess = () => {
+            const fromAcc = fromReq.result;
+            if (fromAcc.balance < amount) {
+                alert('Insufficient balance in ' + fromAcc.name);
+                return;
+            }
+
+            const toReq = accountsStore.get(toId);
+            toReq.onsuccess = () => {
+                const toAcc = toReq.result;
+
+                // Update balances
+                fromAcc.balance -= amount;
+                toAcc.balance += amount;
+                accountsStore.put(fromAcc);
+                accountsStore.put(toAcc);
+
+                // Add transfer record
+                transfersStore.add({
+                    fromId, toId, amount, date,
+                    fromName: fromAcc.name,
+                    toName: toAcc.name
+                });
+
+                // Add transaction
+                transactionsStore.add({
+                    type: 'Transfer',
+                    amount: amount,
+                    description: `${fromAcc.name} → ${toAcc.name}`,
+                    fromAccount: fromAcc.name,
+                    toAccount: toAcc.name,
+                    date: date,
+                    createdAt: new Date()
+                });
+            };
+        };
+
+        transaction.oncomplete = () => {
+            document.getElementById('transferAmount').value = '';
+            loadTransfersList();
+            updateDashboard();
+            loadAccountsList();
+        };
+    }
+
+    function loadTransfersList() {
+        const transaction = db.transaction(storeNames.transfers, 'readonly');
+        const store = transaction.objectStore(storeNames.transfers);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const transfers = request.result.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${transfers.map(t => `
+                            <tr>
+                                <td>${t.date}</td>
+                                <td>${t.fromName}</td>
+                                <td>${t.toName}</td>
+                                <td class="amount-negative">₹${t.amount.toLocaleString('en-IN', {maximumFractionDigits: 0})}</td>
+                                <td>
+                                    <button class="btn-secondary" onclick="editTransfer(${t.id})">Edit</button>
+                                    <button class="btn-danger" onclick="deleteTransfer(${t.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('transfersList').innerHTML = transfers.length > 0 ? html : '<div class="empty-state">No transfers yet</div>';
+        };
+    }
+
+    function editTransfer(id) {
+        const transaction = db.transaction([storeNames.transfers, storeNames.accounts], 'readwrite');
+        const store = transaction.objectStore(storeNames.transfers);
+        const accountsStore = transaction.objectStore(storeNames.accounts);
+
+        const req = store.get(id);
+        req.onsuccess = () => {
+            const transfer = req.result;
+            const newAmount = prompt('Edit transfer amount:', transfer.amount);
+            if (newAmount === null) return;
+
+            const newAmountNum = parseFloat(newAmount);
+            const difference = newAmountNum - transfer.amount;
+
+            const fromReq = accountsStore.get(transfer.fromId);
+            fromReq.onsuccess = () => {
+                const fromAcc = fromReq.result;
+                if (fromAcc.balance < difference) {
+                    alert('Insufficient balance');
+                    return;
+                }
+
+                const toReq = accountsStore.get(transfer.toId);
+                toReq.onsuccess = () => {
+                    const toAcc = toReq.result;
+                    fromAcc.balance -= difference;
+                    toAcc.balance += difference;
+                    accountsStore.put(fromAcc);
+                    accountsStore.put(toAcc);
+
+                    transfer.amount = newAmountNum;
+                    store.put(transfer);
+
+                    transaction.oncomplete = () => {
+                        loadTransfersList();
+                        loadAccountsList();
+                        updateDashboard();
+                    };
+                };
+            };
+        };
+    }
+
+    function deleteTransfer(id) {
+        if (!confirm('Delete this transfer?')) return;
+
+        const transaction = db.transaction([storeNames.transfers, storeNames.accounts], 'readwrite');
+        const store = transaction.objectStore(storeNames.transfers);
+        const accountsStore = transaction.objectStore(storeNames.accounts);
+
+        const req = store.get(id);
+        req.onsuccess = () => {
+            const transfer = req.result;
+
+            const fromReq = accountsStore.get(transfer.fromId);
+            fromReq.onsuccess = () => {
+                const fromAcc = fromReq.result;
+                const toReq = accountsStore.get(transfer.toId);
+                toReq.onsuccess = () => {
+                    const toAcc = toReq.result;
+                    fromAcc.balance += transfer.amount;
+                    toAcc.balance -= transfer.amount;
+                    accountsStore.put(fromAcc);
+                    accountsStore.put(toAcc);
+
+                    store.delete(id);
+
+                    transaction.oncomplete = () => {
+                        loadTransfersList();
+                        loadAccountsList();
+                        updateDashboard();
+                    };
+                };
+            };
+        };
+    }
+
+    // REMINDERS MANAGEMENT
+    function addReminder() {
+        const name = document.getElementById('reminderName').value;
+        const amount = parseFloat(document.getElementById('reminderAmount').value);
+        const day = parseInt(document.getElementById('reminderDay').value);
+        const frequency = document.getElementById('reminderFrequency').value;
+        const accountId = parseInt(document.getElementById('reminderAccount').value);
+
+        if (!name || !amount || !day || !accountId) {
+            alert('Please fill all fields');
+            return;
+        }
+
+        const transaction = db.transaction(storeNames.reminders, 'readwrite');
+        const store = transaction.objectStore(storeNames.reminders);
+
+        store.add({
+            name, amount, day, frequency, accountId, paid: false, createdAt: new Date()
+        });
+
+        transaction.oncomplete = () => {
+            document.getElementById('reminderName').value = '';
+            document.getElementById('reminderAmount').value = '';
+            document.getElementById('reminderDay').value = '';
+            loadRemindersList();
+            updateDashboard();
+        };
+    }
+
+    function loadRemindersList() {
+        const transaction = db.transaction(storeNames.reminders, 'readonly');
+        const store = transaction.objectStore(storeNames.reminders);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const reminders = request.result;
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Name</th>
+                            <th>Amount</th>
+                            <th>Frequency</th>
+                            <th>Paid</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${reminders.map(r => `
+                            <tr>
+                                <td>${r.day}</td>
+                                <td>${r.name}</td>
+                                <td class="amount-negative">₹${r.amount.toLocaleString('en-IN', {maximumFractionDigits: 0})}</td>
+                                <td>${r.frequency}</td>
+                                <td><input type="checkbox" ${r.paid ? 'checked' : ''} onchange="toggleReminderPaid(${r.id}, this.checked)"></td>
+                                <td>
+                                    <button class="btn-secondary" onclick="editReminder(${r.id})">Edit</button>
+                                    <button class="btn-danger" onclick="deleteReminder(${r.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('remindersList').innerHTML = reminders.length > 0 ? html : '<div class="empty-state">No reminders yet</div>';
+        };
+    }
+
+    function toggleReminderPaid(id, paid) {
+        const transaction = db.transaction([storeNames.reminders, storeNames.accounts, storeNames.transactions], 'readwrite');
+        const remindersStore = transaction.objectStore(storeNames.reminders);
+        const accountsStore = transaction.objectStore(storeNames.accounts);
+        const transactionsStore = transaction.objectStore(storeNames.transactions);
+
+        const req = remindersStore.get(id);
+        req.onsuccess = () => {
+            const reminder = req.result;
+            const previousPaid = reminder.paid;
+            reminder.paid = paid;
+
+            if (paid && !previousPaid) {
+                // Mark as paid
+                const accReq = accountsStore.get(reminder.accountId);
+                accReq.onsuccess = () => {
+                    const account = accReq.result;
+                    account.balance -= reminder.amount;
+                    accountsStore.put(account);
+
+                    transactionsStore.add({
+                        type: 'Reminder Paid',
+                        amount: reminder.amount,
+                        description: reminder.name,
+                        fromAccount: account.name,
+                        date: new Date().toISOString().split('T')[0],
+                        createdAt: new Date()
+                    });
+
+                    remindersStore.put(reminder);
+                };
+            } else if (!paid && previousPaid) {
+                // Unmark as paid - refund
+                const accReq = accountsStore.get(reminder.accountId);
+                accReq.onsuccess = () => {
+                    const account = accReq.result;
+                    account.balance += reminder.amount;
+                    accountsStore.put(account);
+                    remindersStore.put(reminder);
+                };
+            }
+        };
+
+        transaction.oncomplete = () => {
+            loadRemindersList();
+            updateDashboard();
+        };
+    }
+
+    function editReminder(id) {
+        const transaction = db.transaction(storeNames.reminders, 'readwrite');
+        const store = transaction.objectStore(storeNames.reminders);
+        const req = store.get(id);
+
+        req.onsuccess = () => {
+            const reminder = req.result;
+            const newAmount = prompt('Edit amount:', reminder.amount);
+            if (newAmount === null) return;
+
+            reminder.amount = parseFloat(newAmount);
+            store.put(reminder);
+
+            transaction.oncomplete = () => loadRemindersList();
+        };
+    }
+
+    function deleteReminder(id) {
+        if (!confirm('Delete this reminder?')) return;
+
+        const transaction = db.transaction(storeNames.reminders, 'readwrite');
+        const store = transaction.objectStore(storeNames.reminders);
+        store.delete(id);
+
+        transaction.oncomplete = () => {
+            loadRemindersList();
+            updateDashboard();
+        };
+    }
+
+    // LOANS MANAGEMENT
+    function addLoan() {
+        const name = document.getElementById('loanName').value;
+        const total = parseFloat(document.getElementById('loanTotal').value);
+        const emi = parseFloat(document.getElementById('loanEMI').value) || 0;
+        const emiDate = parseInt(document.getElementById('loanEMIDate').value);
+        const accountId = parseInt(document.getElementById('loanAccount').value);
+
+        if (!name || !total || !accountId) {
+            alert('Please fill all fields');
+            return;
+        }
+
+        const transaction = db.transaction(storeNames.loans, 'readwrite');
+        const store = transaction.objectStore(storeNames.loans);
+
+        store.add({
+            name, totalAmount: total, emiAmount: emi, emiDate, accountId,
+            paidAmount: 0, createdAt: new Date()
+        });
+
+        transaction.oncomplete = () => {
+            document.getElementById('loanName').value = '';
+            document.getElementById('loanTotal').value = '';
+            document.getElementById('loanEMI').value = '';
+            document.getElementById('loanEMIDate').value = '';
+            loadLoansList();
+            updateDashboard();
+        };
+    }
+
+    function loadLoansList() {
+        const transaction = db.transaction(storeNames.loans, 'readonly');
+        const store = transaction.objectStore(storeNames.loans);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const loans = request.result;
+            const html = loans.map(loan => {
+                const remaining = loan.totalAmount - (loan.paidAmount || 0);
+                return `
+                    <div class="account-card">
+                        <div class="account-name">${loan.name}</div>
+                        <div style="color: var(--text-secondary); font-size: 12px; margin-top: 8px;">
+                            Total: ₹${loan.totalAmount.toLocaleString('en-IN', {maximumFractionDigits: 0})} | 
+                            Paid: ₹${(loan.paidAmount || 0).toLocaleString('en-IN', {maximumFractionDigits: 0})} | 
+                            Remaining: <span class="amount-negative">₹${remaining.toLocaleString('en-IN', {maximumFractionDigits: 0})}</span>
+                        </div>
+                        ${loan.emiAmount > 0 ? `<div style="color: var(--accent-teal); font-size: 12px; margin-top: 4px;">EMI: ₹${loan.emiAmount} on ${loan.emiDate}th</div>` : ''}
+                        <div class="account-actions" style="margin-top: 12px;">
+                            <button class="btn-secondary" onclick="addLoanPayment(${loan.id})">Add Payment</button>
+                            <button class="btn-danger" onclick="deleteLoan(${loan.id})">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('loansList').innerHTML = loans.length > 0 ? html : '<div class="empty-state">No loans yet</div>';
+        };
+    }
+
+    function addLoanPayment(loanId) {
+        const amount = prompt('Enter payment amount (₹):');
+        if (amount === null || parseFloat(amount) <= 0) return;
+
+        const transaction = db.transaction([storeNames.loans, storeNames.accounts, storeNames.transactions], 'readwrite');
+        const loansStore = transaction.objectStore(storeNames.loans);
+        const accountsStore = transaction.objectStore(storeNames.accounts);
+        const transactionsStore = transaction.objectStore(storeNames.transactions);
+
+        const loanReq = loansStore.get(loanId);
+        loanReq.onsuccess = () => {
+            const loan = loanReq.result;
+            const paymentAmount = parseFloat(amount);
+
+            loan.paidAmount = (loan.paidAmount || 0) + paymentAmount;
+            loansStore.put(loan);
+
+            const accReq = accountsStore.get(loan.accountId);
+            accReq.onsuccess = () => {
+                const account = accReq.result;
+                account.balance -= paymentAmount;
+                accountsStore.put(account);
+
+                transactionsStore.add({
+                    type: 'Loan Payment',
+                    amount: paymentAmount,
+                    description: loan.name,
+                    fromAccount: account.name,
+                    date: new Date().toISOString().split('T')[0],
+                    createdAt: new Date()
+                });
+            };
+        };
+
+        transaction.oncomplete = () => {
+            loadLoansList();
+            loadAccountsList();
+            updateDashboard();
+        };
+    }
+
+    function deleteLoan(id) {
+        if (!confirm('Delete this loan?')) return;
+
+        const transaction = db.transaction(storeNames.loans, 'readwrite');
+        const store = transaction.objectStore(storeNames.loans);
+        store.delete(id);
+
+        transaction.oncomplete = () => {
+            loadLoansList();
+            updateDashboard();
+        };
+    }
+
+    // ASSETS MANAGEMENT
+    function addAsset() {
+        const name = document.getElementById('assetName').value;
+        const value = parseFloat(document.getElementById('assetValue').value);
+
+        if (!name || !value) {
+            alert('Please fill all fields');
+            return;
+        }
+
+        const transaction = db.transaction(storeNames.assets, 'readwrite');
+        const store = transaction.objectStore(storeNames.assets);
+
+        store.add({
+            name, value, createdAt: new Date()
+        });
+
+        transaction.oncomplete = () => {
+            document.getElementById('assetName').value = '';
+            document.getElementById('assetValue').value = '';
+            loadAssetsList();
+            updateDashboard();
+        };
+    }
+
+    function loadAssetsList() {
+        const transaction = db.transaction([storeNames.assets, storeNames.settings], 'readonly');
+        const assetsStore = transaction.objectStore(storeNames.assets);
+        const settingsStore = transaction.objectStore(storeNames.settings);
+
+        const assetsReq = assetsStore.getAll();
+        const epfReq = settingsStore.get('epf');
+
+        epfReq.onsuccess = () => {
+            const epfSettings = epfReq.result;
+            let epfAmount = 0;
+
+            if (epfSettings) {
+                const transaction2 = db.transaction(storeNames.transactions, 'readonly');
+                const transactionsStore = transaction2.objectStore(storeNames.transactions);
+                const txnsReq = transactionsStore.getAll();
+
+                txnsReq.onsuccess = () => {
+                    const epfTransactions = txnsReq.result.filter(t => t.type === 'EPF Added');
+                    epfAmount = epfTransactions.reduce((sum, t) => sum + t.amount, 0);
+
+                    assetsReq.onsuccess = () => {
+                        const assets = assetsReq.result;
+                        const html = `
+                            <div class="account-card">
+                                <div class="account-name">EPF Balance</div>
+                                <div class="account-balance" style="color: var(--accent-green);">₹${epfAmount.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+                            </div>
+                            ${assets.map(asset => `
+                                <div class="account-card">
+                                    <div class="account-name">${asset.name}</div>
+                                    <div class="account-balance" style="color: var(--accent-green);">₹${asset.value.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+                                    <div class="account-actions">
+                                        <button class="btn-secondary" onclick="editAsset(${asset.id})">Edit</button>
+                                        <button class="btn-danger" onclick="deleteAsset(${asset.id})">Delete</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        `;
+
+                        document.getElementById('assetsList').innerHTML = assets.length > 0 || epfAmount > 0 ? html : '<div class="empty-state">No assets yet</div>';
+                    };
+                };
+            } else {
+                assetsReq.onsuccess = () => {
+                    const assets = assetsReq.result;
+                    const html = assets.map(asset => `
+                        <div class="account-card">
+                            <div class="account-name">${asset.name}</div>
+                            <div class="account-balance" style="color: var(--accent-green);">₹${asset.value.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+                            <div class="account-actions">
+                                <button class="btn-secondary" onclick="editAsset(${asset.id})">Edit</button>
+                                <button class="btn-danger" onclick="deleteAsset(${asset.id})">Delete</button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('assetsList').innerHTML = assets.length > 0 ? html : '<div class="empty-state">No assets yet</div>';
+                };
+            }
+        };
+    }
+
+    function editAsset(id) {
+        const transaction = db.transaction(storeNames.assets, 'readwrite');
+        const store = transaction.objectStore(storeNames.assets);
+        const req = store.get(id);
+
+        req.onsuccess = () => {
+            const asset = req.result;
+            const newValue = prompt('Edit value (₹):', asset.value);
+            if (newValue === null) return;
+
+            asset.value = parseFloat(newValue);
+            store.put(asset);
+
+            transaction.oncomplete = () => {
+                loadAssetsList();
+                updateDashboard();
+            };
+        };
+    }
+
+    function deleteAsset(id) {
+        if (!confirm('Delete this asset?')) return;
+
+        const transaction = db.transaction(storeNames.assets, 'readwrite');
+        const store = transaction.objectStore(storeNames.assets);
+        store.delete(id);
+
+        transaction.oncomplete = () => {
+            loadAssetsList();
+            updateDashboard();
+        };
+    }
+
+    // AUTO PROCESSING
+    function processAutoIncrements() {
+        const today = new Date();
+        const dayOfMonth = today.getDate();
+
+        const transaction = db.transaction([storeNames.settings, storeNames.accounts, storeNames.transactions, storeNames.loans], 'readwrite');
+        const settingsStore = transaction.objectStore(storeNames.settings);
+        const accountsStore = transaction.objectStore(storeNames.accounts);
+        const transactionsStore = transaction.objectStore(storeNames.transactions);
+        const loansStore = transaction.objectStore(storeNames.loans);
+
+        // Process Salary
+        const salaryReq = settingsStore.get('salary');
+        salaryReq.onsuccess = () => {
+            const salary = salaryReq.result;
+            if (salary && salary.date === dayOfMonth) {
+                const dateStr = today.toISOString().split('T')[0];
+                const txnReq = transactionsStore.getAll();
+                txnReq.onsuccess = () => {
+                    const existsToday = txnReq.result.some(t => t.type === 'Salary' && t.date === dateStr);
+                    if (!existsToday) {
+                        const accReq = accountsStore.get(salary.accountId);
+                        accReq.onsuccess = () => {
+                            const account = accReq.result;
+                            account.balance += salary.amount;
+                            accountsStore.put(account);
+
+                            transactionsStore.add({
+                                type: 'Salary',
+                                amount: salary.amount,
+                                description: 'Monthly Salary',
+                                fromAccount: account.name,
+                                date: dateStr,
+                                createdAt: new Date()
+                            });
+                        };
+                    }
+                };
+            }
+        };
+
+        // Process EPF
+        const epfReq = settingsStore.get('epf');
+        epfReq.onsuccess = () => {
+            const epf = epfReq.result;
+            if (epf && epf.date === dayOfMonth) {
+                const dateStr = today.toISOString().split('T')[0];
+                const txnReq = transactionsStore.getAll();
+                txnReq.onsuccess = () => {
+                    const existsToday = txnReq.result.some(t => t.type === 'EPF Added' && t.date === dateStr);
+                    if (!existsToday) {
+                        transactionsStore.add({
+                            type: 'EPF Added',
+                            amount: epf.amount,
+                            description: 'Monthly EPF',
+                            fromAccount: 'EPF',
+                            date: dateStr,
+                            createdAt: new Date()
+                        });
+                    }
+                };
+            }
+        };
+
+        // Process Loan EMIs
+        const loansReq = loansStore.getAll();
+        loansReq.onsuccess = () => {
+            const loans = loansReq.result;
+            loans.forEach(loan => {
+                if (loan.emiAmount > 0 && loan.emiDate === dayOfMonth) {
+                    const dateStr = today.toISOString().split('T')[0];
+                    const txnReq = transactionsStore.getAll();
+                    txnReq.onsuccess = () => {
+                        const existsToday = txnReq.result.some(t => t.type === 'Loan EMI' && t.date === dateStr && t.description === loan.name);
+                        if (!existsToday) {
+                            const accReq = accountsStore.get(loan.accountId);
+                            accReq.onsuccess = () => {
+                                const account = accReq.result;
+                                account.balance -= loan.emiAmount;
+                                accountsStore.put(account);
+
+                                loan.paidAmount = (loan.paidAmount || 0) + loan.emiAmount;
+                                loansStore.put(loan);
+
+                                transactionsStore.add({
+                                    type: 'Loan EMI',
+                                    amount: loan.emiAmount,
+                                    description: loan.name,
+                                    fromAccount: account.name,
+                                    date: dateStr,
+                                    createdAt: new Date()
+                                });
+                            };
+                        }
+                    };
+                }
+            });
+        };
+    }
+
+    function addTransaction(type, amount, description, account) {
+        const transaction = db.transaction(storeNames.transactions, 'readwrite');
+        const store = transaction.objectStore(storeNames.transactions);
+
+        store.add({
+            type, amount, description,
+            fromAccount: account,
+            date: new Date().toISOString().split('T')[0],
+            createdAt: new Date()
+        });
+    }
+
+    // HISTORY
+    function filterHistory() {
+        const monthStr = document.getElementById('historyMonth').value;
+        if (!monthStr) return;
+
+        const transaction = db.transaction(storeNames.transactions, 'readonly');
+        const store = transaction.objectStore(storeNames.transactions);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const allTransactions = request.result;
+            const filtered = allTransactions.filter(t => {
+                return t.date && t.date.startsWith(monthStr);
+            }).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Account</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(t => `
+                            <tr>
+                                <td>${t.date}</td>
+                                <td>${t.type}</td>
+                                <td>${t.description}</td>
+                                <td class="${t.type.includes('EMI') || t.type === 'Loan Payment' || t.type === 'Reminder Paid' ? 'amount-negative' : 'amount-positive'}">
+                                    ${t.type.includes('EMI') || t.type === 'Loan Payment' || t.type === 'Reminder Paid' ? '-' : '+'}₹${Math.abs(t.amount).toLocaleString('en-IN', {maximumFractionDigits: 0})}
+                                </td>
+                                <td>${t.fromAccount}</td>
+                                <td>
+                                    <button class="btn-secondary" onclick="editTransaction(${t.id})">Edit</button>
+                                    <button class="btn-danger" onclick="deleteTransaction(${t.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('historyTable').innerHTML = filtered.length > 0 ? html : '<div class="empty-state">No transactions found</div>';
+        };
+    }
+
+    function editTransaction(id) {
+        const transaction = db.transaction(storeNames.transactions, 'readwrite');
+        const store = transaction.objectStore(storeNames.transactions);
+        const req = store.get(id);
+
+        req.onsuccess = () => {
+            const txn = req.result;
+            const newAmount = prompt('Edit amount:', txn.amount);
+            if (newAmount === null) return;
+
+            txn.amount = parseFloat(newAmount);
+            store.put(txn);
+
+            transaction.oncomplete = () => {
+                filterHistory();
+                updateDashboard();
+            };
+        };
+    }
+
+    function deleteTransaction(id) {
+        if (!confirm('Delete this transaction?')) return;
+
+        const transaction = db.transaction(storeNames.transactions, 'readwrite');
+        const store = transaction.objectStore(storeNames.transactions);
+        store.delete(id);
+
+        transaction.oncomplete = () => {
+            filterHistory();
+            updateDashboard();
+        };
+    }
+
+    // DASHBOARD
+    function updateDashboard() {
+        const transaction = db.transaction([storeNames.accounts, storeNames.assets, storeNames.loans, storeNames.transactions, storeNames.reminders], 'readonly');
+        const accountsStore = transaction.objectStore(storeNames.accounts);
+        const assetsStore = transaction.objectStore(storeNames.assets);
+        const loansStore = transaction.objectStore(storeNames.loans);
+        const transactionsStore = transaction.objectStore(storeNames.transactions);
+        const remindersStore = transaction.objectStore(storeNames.reminders);
+
+        const accountsReq = accountsStore.getAll();
+        const assetsReq = assetsStore.getAll();
+        const loansReq = loansStore.getAll();
+        const transactionsReq = transactionsStore.getAll();
+        const remindersReq = remindersStore.getAll();
+
+        let totalAssets = 0;
+        let totalLiabilities = 0;
+
+        accountsReq.onsuccess = () => {
+            const accounts = accountsReq.result;
+            totalAssets += accounts.reduce((sum, acc) => sum + acc.balance, 0);
+
+            assetsReq.onsuccess = () => {
+                const assets = assetsReq.result;
+                totalAssets += assets.reduce((sum, asset) => sum + asset.value, 0);
+
+                // Add EPF
+                transactionsReq.onsuccess = () => {
+                    const transactions = transactionsReq.result;
+                    const epfAmount = transactions.filter(t => t.type === 'EPF Added').reduce((sum, t) => sum + t.amount, 0);
+                    totalAssets += epfAmount;
+
+                    loansReq.onsuccess = () => {
+                        const loans = loansReq.result;
+                        totalLiabilities = loans.reduce((sum, loan) => sum + (loan.totalAmount - (loan.paidAmount || 0)), 0);
+
+                        const netWorth = totalAssets - totalLiabilities;
+
+                        document.getElementById('totalAssets').textContent = '₹' + totalAssets.toLocaleString('en-IN', {maximumFractionDigits: 0});
+                        document.getElementById('totalLiabilities').textContent = '₹' + totalLiabilities.toLocaleString('en-IN', {maximumFractionDigits: 0});
+                        document.getElementById('netWorth').textContent = '₹' + netWorth.toLocaleString('en-IN', {maximumFractionDigits: 0});
+
+                        remindersReq.onsuccess = () => {
+                            const reminders = remindersReq.result;
+                            updateUpcomingReminders(reminders);
+                        };
+                    };
+                };
+            };
+        };
+    }
+
+    function updateUpcomingReminders(allReminders) {
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        const currentDay = today.getDate();
+
+        let displayDate = new Date(currentYear, currentMonth + currentMonthOffset, 1);
+        let displayMonth = displayDate.getMonth();
+        let displayYear = displayDate.getFullYear();
+
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        document.getElementById('reminderMonthDisplay').textContent = monthNames[displayMonth] + ' ' + displayYear;
+
+        const relevant = allReminders.filter(r => {
+            if (r.frequency === 'once') return false;
+            if (r.frequency === 'monthly') return true;
+            if (r.frequency === 'yearly') {
+                const reminderDate = new Date(displayYear, displayMonth, r.day);
+                return reminderDate.getMonth() === displayMonth;
+            }
+            return false;
+        });
+
+        const html = relevant.map(r => `
+            <div class="reminder-item">
+                <div class="reminder-info">
+                    <div class="reminder-date">${String(r.day).padStart(2, '0')} ${monthNames[displayMonth]}</div>
+                    <div class="reminder-name">${r.name}</div>
+                    <div class="reminder-amount">₹${r.amount.toLocaleString('en-IN', {maximumFractionDigits: 0})}</div>
+                </div>
+                <input type="checkbox" class="reminder-checkbox" ${r.paid ? 'checked' : ''} onchange="toggleReminderPaid(${r.id}, this.checked)">
+            </div>
+        `).join('');
+
+        document.getElementById('upcomingReminders').innerHTML = html || '<div class="empty-state">No reminders this month</div>';
+    }
+
+    function previousMonth() {
+        currentMonthOffset--;
+        const transaction = db.transaction(storeNames.reminders, 'readonly');
+        const store = transaction.objectStore(storeNames.reminders);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            updateUpcomingReminders(request.result);
+        };
+    }
+
+    function nextMonth() {
+        currentMonthOffset++;
+        const transaction = db.transaction(storeNames.reminders, 'readonly');
+        const store = transaction.objectStore(storeNames.reminders);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            updateUpcomingReminders(request.result);
+        };
+    }
+
+    // EXPORT & IMPORT
+    function exportData() {
+        const transaction = db.transaction(Object.values(storeNames), 'readonly');
+        const exportedData = {};
+
+        let completed = 0;
+        const total = Object.keys(storeNames).length;
+
+        Object.values(storeNames).forEach(storeName => {
+            const store = transaction.objectStore(storeName);
+            const request = store.getAll();
+
+            request.onsuccess = () => {
+                exportedData[storeName] = request.result;
+                completed++;
+
+                if (completed === total) {
+                    const jsonData = JSON.stringify(exportedData, null, 2);
+                    const blob = new Blob([jsonData], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'finance_data.json';
+                    a.click();
+
+                    URL.revokeObjectURL(url);
+                }
+            };
+        });
+    }
+
+    function importData() {
+        const fileInput = document.getElementById('jsonFileInput');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select a file');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const importedData = JSON.parse(event.target.result);
+
+                const transaction = db.transaction(Object.values(storeNames), 'readwrite');
+                let completed = 0;
+                const total = Object.keys(storeNames).length;
+
+                Object.keys(storeNames).forEach(key => {
+                    const storeName = storeNames[key];
+                    if (importedData[storeName]) {
+                        const store = transaction.objectStore(storeName);
+                        importedData[storeName].forEach(record => {
+                            store.add(record);
+                        });
+                    }
+                    completed++;
+                });
+
+                transaction.oncomplete = () => {
+                    alert('Data imported successfully');
+                    location.reload();
+                };
+            } catch (error) {
+                alert('Error importing data: ' + error.message);
+            }
+        };
+
+        reader.readAsText(file);
+    }
+
+    function clearAllData() {
+        if (!confirm('This will delete ALL data. Are you sure?')) return;
+
+        const transaction = db.transaction(Object.values(storeNames), 'readwrite');
+
+        Object.values(storeNames).forEach(storeName => {
+            const store = transaction.objectStore(storeName);
+            store.clear();
+        });
+
+        transaction.oncomplete = () => {
+            alert('All data cleared');
+            location.reload();
+        };
+    }
+
+    // INITIALIZE
+    initDatabase();
+</script>
+```
+
 </body>
 
 </html>
